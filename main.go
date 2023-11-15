@@ -3,7 +3,6 @@ package mongik
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/FrosTiK-SD/mongik/models"
@@ -19,7 +18,7 @@ func NewClient(mongoURL string, cachingDuration time.Duration) *models.Mongik {
 	
 	// Connect to MongoDB
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	mongoClient, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv(mongoURL)).SetServerAPIOptions(serverAPI))
+	mongoClient, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURL).SetServerAPIOptions(serverAPI))
 	if err != nil {
 		log.Fatalf("Unable to Connect to MongoDB: %v\n", err)
 	} else {
