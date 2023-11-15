@@ -1,4 +1,4 @@
-package models
+package mongik
 
 import (
 	"github.com/allegro/bigcache/v3"

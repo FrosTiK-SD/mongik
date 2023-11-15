@@ -1,4 +1,4 @@
-package db
+package mongik
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/FrosTiK-SD/mongik/constants"
-	"github.com/FrosTiK-SD/mongik/models"
+	mongik "github.com/FrosTiK-SD/mongik/models"
 	"github.com/allegro/bigcache/v3"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -20,7 +20,7 @@ func resetCache(cacheClient bigcache.BigCache, clusterName string) {
 	DBCacheReset(&cacheClient, clusterName)
 }
 
-func FindOne[Result any](mongikClient *models.Mongik,db string, collectionName string, query bson.M, result *Result, noCache bool) {
+func FindOne[Result any](mongikClient *mongik.Mongik,db string, collectionName string, query bson.M, result *Result, noCache bool) {
 	key := getKey(collectionName, constants.DB_FINDONE, query)
 	var resultBytes []byte
 	var resultInterface map[string]interface{}
@@ -47,7 +47,7 @@ func FindOne[Result any](mongikClient *models.Mongik,db string, collectionName s
 	}
 }
 
-func Find[Result any]( mongikClient *models.Mongik, db string,collectionName string, query bson.M, noCache bool) ([]Result, error) {
+func Find[Result any]( mongikClient *mongik.Mongik, db string,collectionName string, query bson.M, noCache bool) ([]Result, error) {
 	key := getKey(collectionName, constants.DB_FIND, query)
 	var resultBytes []byte
 	var result []Result

@@ -1,4 +1,4 @@
-package db
+package mongik
 
 import (
 	"encoding/json"
