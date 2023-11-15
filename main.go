@@ -6,17 +6,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/FrosTiK-SD/mongik/models"
 	"github.com/allegro/bigcache/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Mongik struct {
-	MongoClient *mongo.Client
-	CacheClient *bigcache.BigCache
-}
 
-func NewClient(mongoURL string, cachingDuration time.Duration) *Mongik {
+func NewClient(mongoURL string, cachingDuration time.Duration) *models.Mongik {
 	// Initialize BigCache
 	cacheClient, _ := bigcache.New(context.Background(), bigcache.DefaultConfig(cachingDuration))
 	
@@ -29,7 +26,7 @@ func NewClient(mongoURL string, cachingDuration time.Duration) *Mongik {
 		log.Println("Connected to MongoDB")
 	}
 
-	return &Mongik{
+	return &models.Mongik{
 		MongoClient: mongoClient,
 		CacheClient: cacheClient,
 	}
