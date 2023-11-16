@@ -2,7 +2,6 @@ package mongik
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/FrosTiK-SD/mongik/constants"
