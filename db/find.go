@@ -9,9 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func getKey(collectionName string, operation string, query interface{}) string {
-	return fmt.Sprintf("%s | %s | %v", collectionName, constants.DB_FINDONE, query)
-}
 
 func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool) {
 	key := getKey(collectionName, constants.DB_FINDONE, query)
