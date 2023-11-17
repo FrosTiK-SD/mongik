@@ -7,6 +7,7 @@ import (
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 
@@ -37,7 +38,7 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 	}
 }
 
-func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, noCache bool) ([]Result, error) {
+func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, noCache bool, opts ...*options.FindOptions) ([]Result, error) {
 	key := getKey(collectionName, constants.DB_FIND, query)
 	var resultBytes []byte
 	var result []Result
@@ -54,7 +55,7 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 
 	// Query to DB
 	fmt.Println("Queriying the DB")
-	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Find(context.Background(), query)
+	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Find(context.Background(), query, opts...)
 	if err != nil {
 		return nil, err
 	}
