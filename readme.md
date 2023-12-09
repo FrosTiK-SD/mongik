@@ -42,3 +42,16 @@ Its that simple. All the error in connecting to Mongo are managed by the `Mongik
 | ------------ | ---- | ---- | ----- |
 | 1 | MONGO_CONNECTION_STRING | `string` | The `MongoDB` connection string `mongodb+srv://.....` |
 | 2 | CACHE_DURATION | `time.Duration` | The duration for which the DB call will be cached |
+
+It returns a `MongikClient`.
+
+```.go
+type Mongik struct {
+    MongoClient *mongo.Client
+    CacheClient *bigcache.BigCache
+}
+```
+
+You can use the individual clients also for more granular control but we will not talk about here as documentation of that can be found in their respective docs.
+
+Now you can check out the `db` folder to check out the method exported and just replace the DB calls in your code with the exported functions of `Mongik` to enjoy caching and enhanced parsing.
