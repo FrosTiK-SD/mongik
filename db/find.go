@@ -10,9 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-
 func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool) {
-	key := getKey(collectionName, constants.DB_FINDONE, query)
+	var option interface{}
+	key := getKey(collectionName, constants.DB_FINDONE, query, option)
 	var resultBytes []byte
 	var resultInterface map[string]interface{}
 
@@ -39,7 +39,7 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 }
 
 func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, noCache bool, opts ...*options.FindOptions) ([]Result, error) {
-	key := getKey(collectionName, constants.DB_FIND, query)
+	key := getKey(collectionName, constants.DB_FIND, query, opts)
 	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}

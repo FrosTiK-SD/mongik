@@ -9,7 +9,8 @@ import (
 )
 
 func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool) ([]Result, error) {
-	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline)
+	var option interface{}
+	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline, option)
 	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}
@@ -44,7 +45,8 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 }
 
 func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool) (Result, error) {
-	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline)
+	var option interface{}
+	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline, option)
 	var resultBytes []byte
 	var result Result
 	var resultInterface []map[string]interface{}
