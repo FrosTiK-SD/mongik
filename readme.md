@@ -37,3 +37,8 @@ func main() {
 ```
 
 Its that simple. All the error in connecting to Mongo are managed by the `MongikClient` itself
+
+| Parameter No | Name | Type | Usage |
+| ------------ | ---- | ---- | ----- |
+| 1 | MONGO_CONNECTION_STRING | `string` | The `MongoDB` connection string `mongodb+srv://.....` |
+| 2 | CACHE_DURATION | `time.Duration` | The duration for which the DB call will be cached |
