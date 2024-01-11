@@ -73,11 +73,9 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 	return result, nil
 }
 
-func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, noCache bool, opts ...*options.FindOneAndUpdateOptions) ([]Result, error) {
-	key := getKey(collectionName, constants.DB_FINDONE, query, opts)
-	var resultBytes []byte
-	var result []Result
-	var resultInterface []map[string]interface{}
+func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, noCache bool, opts ...*options.FindOneAndUpdateOptions) (Result) {
+	var result Result
+	var resultInterface map[string]interface{}
 
 	fmt.Println("Queriying the DB")
 	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndUpdate(context.Background(), query, update, opts...).Decode(&resultInterface)
@@ -85,11 +83,7 @@ func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collec
 	resultBody, _ := json.Marshal(resultInterface)
 	json.Unmarshal(resultBody, &result)
 
-	// Set to cache
-	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes); err == nil {
-		fmt.Println("Successfully set DB call in cache with key ", key)
-	}
+	DBCacheReset(mongikClient.CacheClient, collectionName)
 
-	return result, nil
+	return result
 }
