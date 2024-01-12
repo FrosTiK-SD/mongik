@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ReplaceOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, doc Doc, noCache bool, opts ...*options.ReplaceOptions) (*mongo.UpdateResult, error) {
+func ReplaceOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, doc Doc, opts ...*options.ReplaceOptions) (*mongo.UpdateResult, error) {
 	// Query to DB
 	docId, err := mongikClient.MongoClient.Database(db).Collection(collectionName).ReplaceOne(context.Background(), filter, doc, opts...)
 

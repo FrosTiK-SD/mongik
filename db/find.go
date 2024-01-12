@@ -73,7 +73,7 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 	return result, nil
 }
 
-func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, noCache bool, opts ...*options.FindOneAndUpdateOptions) Result {
+func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, opts ...*options.FindOneAndUpdateOptions) Result {
 	var result Result
 	var resultInterface map[string]interface{}
 
@@ -88,7 +88,7 @@ func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collec
 	return result
 }
 
-func FindOneAndReplace[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, replace bson.M, noCache bool, opts ...*options.FindOneAndReplaceOptions) Result {
+func FindOneAndReplace[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, replace bson.M, opts ...*options.FindOneAndReplaceOptions) Result {
 	var result Result
 	var resultInterface map[string]interface{}
 
