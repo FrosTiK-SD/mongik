@@ -17,7 +17,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes, _ := mongikClient.CacheClient.Get(key)
+		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
@@ -52,7 +52,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes, _ := mongikClient.CacheClient.Get(key)
+		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil

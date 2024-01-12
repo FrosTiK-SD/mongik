@@ -55,3 +55,8 @@ func DBCacheReset(cacheClient *bigcache.BigCache, clusterName string) {
 	keyStoreBytes, _ = json.Marshal(keyStore)
 	cacheClient.Set(constants.KEY_STORE, keyStoreBytes)
 }
+
+func DBCacheFetch(cacheClient *bigcache.BigCache, key string) []byte {
+	resultBytes, _ := cacheClient.Get(key)
+	return resultBytes
+}

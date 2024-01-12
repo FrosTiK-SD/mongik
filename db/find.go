@@ -17,7 +17,7 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes, _ := mongikClient.CacheClient.Get(key)
+		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return
@@ -45,7 +45,7 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes, _ := mongikClient.CacheClient.Get(key)
+		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
