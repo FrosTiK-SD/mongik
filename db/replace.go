@@ -11,8 +11,8 @@ import (
 
 func ReplaceOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, doc Doc, opts ...*options.ReplaceOptions) (*mongo.UpdateResult, error) {
 	// Query to DB
-	docId, err := mongikClient.MongoClient.Database(db).Collection(collectionName).ReplaceOne(context.Background(), filter, doc, opts...)
+	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).ReplaceOne(context.Background(), filter, doc, opts...)
 
 	DBCacheReset(mongikClient.CacheClient, collectionName)
-	return docId, err
+	return result, err
 }

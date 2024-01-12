@@ -9,24 +9,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, doc Doc, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
+func UpdateOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, update bson.M, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	// Query to DB
-	docId, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateOne(context.Background(), filter, doc, opts...)
+	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateOne(context.Background(), filter, update, opts...)
 
 	DBCacheReset(mongikClient.CacheClient, collectionName)
-	return docId, err
+	return result, err
 }
 
-func UpdateMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, docs []Doc, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
-	// Convert []struct to []interface
-	docsInterface := make([]interface{}, len(docs))
-	for index := range docs {
-		docsInterface[index] = docs[index]
-	}
+func UpdateMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, filter bson.M, update bson.M, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	// Query to DB
-	docIds, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateMany(context.Background(), filter, docsInterface, opts...)
+	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateMany(context.Background(), filter, update, opts...)
 
 	DBCacheReset(mongikClient.CacheClient, collectionName)
-	return docIds, err
+	return result, err
 }
-
