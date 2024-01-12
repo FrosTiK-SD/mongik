@@ -19,13 +19,13 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	if !noCache {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retreiving DB call from the cache with cache key ", key)
+			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
 		}
 	}
 
 	// Query to DB
-	fmt.Println("Queriying the DB")
+	fmt.Println("Querying the DB")
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return nil, err
@@ -55,13 +55,13 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 	if !noCache {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retreiving DB call from the cache with cache key ", key)
+			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
 		}
 	}
 
 	// Query to DB
-	fmt.Println("Queriying the DB")
+	fmt.Println("Querying the DB")
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline)
 	if err != nil {
 		return result, err

@@ -14,6 +14,7 @@ func InsertOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName s
 	DBCacheReset(mongikClient.CacheClient, collectionName)
 	return docId, err
 }
+
 func InsertMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName string, docs []Doc) (*mongo.InsertManyResult, error) {
 	// Convert []struct to []interface
 	docsInterface := make([]interface{}, len(docs))

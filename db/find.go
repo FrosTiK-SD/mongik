@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool) {
+func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool, opts ...*options.FindOneOptions) {
 	var option interface{}
 	key := getKey(collectionName, constants.DB_FINDONE, query, option)
 	var resultBytes []byte
@@ -20,13 +20,13 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 	if !noCache {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retreiving DB call from the cache with cache key ", key)
+			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return
 		}
 	}
 
 	// Query to DB
-	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOne(context.Background(), query).Decode(&resultInterface)
+	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOne(context.Background(), query, opts...).Decode(&resultInterface)
 
 	resultBody, _ := json.Marshal(resultInterface)
 	json.Unmarshal(resultBody, &result)
@@ -48,13 +48,13 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 	if !noCache {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retreiving DB call from the cache with cache key ", key)
+			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
 		}
 	}
 
 	// Query to DB
-	fmt.Println("Queriying the DB")
+	fmt.Println("Querying the DB")
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Find(context.Background(), query, opts...)
 	if err != nil {
 		return nil, err
@@ -73,12 +73,27 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 	return result, nil
 }
 
-func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, noCache bool, opts ...*options.FindOneAndUpdateOptions) (Result) {
+func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, noCache bool, opts ...*options.FindOneAndUpdateOptions) Result {
 	var result Result
 	var resultInterface map[string]interface{}
 
-	fmt.Println("Queriying the DB")
+	fmt.Println("Querying the DB")
 	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndUpdate(context.Background(), query, update, opts...).Decode(&resultInterface)
+
+	resultBody, _ := json.Marshal(resultInterface)
+	json.Unmarshal(resultBody, &result)
+
+	DBCacheReset(mongikClient.CacheClient, collectionName)
+
+	return result
+}
+
+func FindOneAndReplace[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, replace bson.M, noCache bool, opts ...*options.FindOneAndReplaceOptions) Result {
+	var result Result
+	var resultInterface map[string]interface{}
+
+	fmt.Println("Querying the DB")
+	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndReplace(context.Background(), query, replace, opts...).Decode(&resultInterface)
 
 	resultBody, _ := json.Marshal(resultInterface)
 	json.Unmarshal(resultBody, &result)
