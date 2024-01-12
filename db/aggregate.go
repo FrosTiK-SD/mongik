@@ -6,11 +6,11 @@ import (
 
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool) ([]Result, error) {
-	var option interface{}
-	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline, option)
+func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool, opts ...*options.AggregateOptions) ([]Result, error) {
+	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline, opts)
 	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}
@@ -26,7 +26,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 
 	// Query to DB
 	fmt.Println("Querying the DB")
-	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline)
+	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,8 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	return result, nil
 }
 
-func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool) (Result, error) {
-	var option interface{}
-	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline, option)
+func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool, opts ...*options.AggregateOptions) (Result, error) {
+	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline, opts)
 	var resultBytes []byte
 	var result Result
 	var resultInterface []map[string]interface{}
@@ -62,7 +61,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 
 	// Query to DB
 	fmt.Println("Querying the DB")
-	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline)
+	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
 	if err != nil {
 		return result, err
 	}

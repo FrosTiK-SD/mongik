@@ -11,8 +11,7 @@ import (
 )
 
 func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool, opts ...*options.FindOneOptions) {
-	var option interface{}
-	key := getKey(collectionName, constants.DB_FINDONE, query, option)
+	key := getKey(collectionName, constants.DB_FINDONE, query, opts)
 	var resultBytes []byte
 	var resultInterface map[string]interface{}
 
