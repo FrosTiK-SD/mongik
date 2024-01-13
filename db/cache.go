@@ -30,7 +30,9 @@ func DBCacheSet(cacheClient *bigcache.BigCache, key string, value []byte) error 
 	keyStoreBytes, _ = json.Marshal(keyStore)
 	_ = cacheClient.Set(constants.KEY_STORE, keyStoreBytes)
 
-	fmt.Printf("%v", keyStore)
+	fmt.Println("--------- Cache set")
+	fmt.Println(keyStore)
+	fmt.Println("--------- Cache set end")
 
 	// return caheClient.Set(key, value)
 	return cacheClient.Set(key, value)
