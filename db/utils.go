@@ -16,14 +16,16 @@ func getKey[Option any](collectionName string, operation string, query interface
 }
 
 func iterateStructFields(input interface{}) string {
-	structKey := ""
+	structKey := "{ "
 	value := reflect.ValueOf(input)
 	numFields := value.NumField()
 	structType := value.Type()
 	for i := 0; i < numFields; i++ {
 		field := structType.Field(i)
 		fieldValue := reflect.Indirect(value.Field(i))
-		structKey += fmt.Sprintf("%s %v ", field.Name, fieldValue)
+		if fieldValue.IsValid() == true && fieldValue.IsZero() == false {
+			structKey += fmt.Sprintf("%s: %v, ", field.Name, fieldValue)
+		}
 	}
-	return structKey
+	return structKey + " }"
 }
