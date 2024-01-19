@@ -3,8 +3,6 @@ package mongik
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/FrosTiK-SD/mongik/constants"
 )
 
 func getKey[Option any](collectionName string, operation string, query interface{}, option []*Option) string {
@@ -12,7 +10,7 @@ func getKey[Option any](collectionName string, operation string, query interface
 	for _, opt := range option {
 		optionKey += iterateStructFields(*opt)
 	}
-	return fmt.Sprintf("%s | %s | %v | %v", collectionName, constants.DB_FINDONE, query, optionKey)
+	return fmt.Sprintf("%s | %s | %v | %v", collectionName, operation, query, optionKey)
 }
 
 func iterateStructFields(input interface{}) string {

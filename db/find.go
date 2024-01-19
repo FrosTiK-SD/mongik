@@ -71,18 +71,3 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 
 	return result, nil
 }
-
-func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, opts ...*options.FindOneAndUpdateOptions) Result {
-	var result Result
-	var resultInterface map[string]interface{}
-
-	fmt.Println("Querying the DB")
-	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndUpdate(context.Background(), query, update, opts...).Decode(&resultInterface)
-
-	resultBody, _ := json.Marshal(resultInterface)
-	json.Unmarshal(resultBody, &result)
-
-	DBCacheReset(mongikClient.CacheClient, collectionName)
-
-	return result
-}
