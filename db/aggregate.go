@@ -26,6 +26,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 			if strings.Contains(tag, "from:") {
 				res := strings.Split(tag, "from:")
 				lookupCollection = res[1]
+				break
 			}
 		}
 	}
@@ -75,6 +76,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 			if strings.Contains(tag, "from:") {
 				res := strings.Split(tag, "from:")
 				lookupCollection = res[1]
+				break
 			}
 		}
 	}
