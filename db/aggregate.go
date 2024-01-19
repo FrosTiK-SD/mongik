@@ -3,33 +3,18 @@ package mongik
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool, opts ...*options.AggregateOptions) ([]Result, error) {
+func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline []bson.M, noCache bool, opts ...*options.AggregateOptions) ([]Result, error) {
 	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline, opts)
 	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}
-
-	// Parsing lookup collection from pipeline
-	var lookupCollection string = " "
-	pipe := fmt.Sprintf("%v", pipeline)
-	pipeSplit := strings.Split(pipe, "$lookup")
-	if len(pipeSplit) > 1 {
-		pipeSplit2 := strings.Split(pipeSplit[1], " ")
-		for _, tag := range pipeSplit2 {
-			if strings.Contains(tag, "from:") {
-				res := strings.Split(tag, "from:")
-				lookupCollection = res[1]
-				break
-			}
-		}
-	}
 
 	// First Check if it is present in the cache
 	if !noCache {
@@ -51,35 +36,23 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	resultBody, _ := json.Marshal(resultInterface)
 	json.Unmarshal(resultBody, &result)
 
+	// Parsing lookup collection from pipeline
+	lookupCollections := getLookupCollections(pipeline)
+
 	// Set to cache
 	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollection); err == nil {
+	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollections...); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 
 	return result, nil
 }
 
-func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline interface{}, noCache bool, opts ...*options.AggregateOptions) (Result, error) {
+func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline []bson.M, noCache bool, opts ...*options.AggregateOptions) (Result, error) {
 	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline, opts)
 	var resultBytes []byte
 	var result Result
 	var resultInterface []map[string]interface{}
-
-	// Parsing lookup collection from pipeline
-	var lookupCollection string = " "
-	pipe := fmt.Sprintf("%v", pipeline)
-	pipeSplit := strings.Split(pipe, "$lookup")
-	if len(pipeSplit) > 1 {
-		pipeSplit2 := strings.Split(pipeSplit[1], " ")
-		for _, tag := range pipeSplit2 {
-			if strings.Contains(tag, "from:") {
-				res := strings.Split(tag, "from:")
-				lookupCollection = res[1]
-				break
-			}
-		}
-	}
 
 	// First Check if it is present in the cache
 	if !noCache {
@@ -105,9 +78,12 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 	resultBody, _ := json.Marshal(resultInterface[0])
 	json.Unmarshal(resultBody, &result)
 
+	// Parsing lookup collection from pipeline
+	lookupCollections := getLookupCollections(pipeline)
+
 	// Set to cache
 	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollection); err == nil {
+	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollections...); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 

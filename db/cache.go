@@ -13,7 +13,7 @@ func getDBClusterFromKey(key string) string {
 	return strings.Split(key, " | ")[0]
 }
 
-func DBCacheSet(cacheClient *bigcache.BigCache, key string, value []byte, lookupCollection ...string) error {
+func DBCacheSet(cacheClient *bigcache.BigCache, key string, value []byte, lookupCollections ...string) error {
 	// Get the list of keys
 	var keyStore map[string][]string
 	keyStoreBytes, _ := cacheClient.Get(constants.KEY_STORE)
@@ -25,8 +25,10 @@ func DBCacheSet(cacheClient *bigcache.BigCache, key string, value []byte, lookup
 
 	// Add it to the cluster set
 	keyStore[clusterName] = append(keyStore[clusterName], key)
-	if lookupCollection != nil {
-		keyStore[lookupCollection[0]] = append(keyStore[lookupCollection[0]], key)
+	if lookupCollections != nil {
+		for _, collection := range lookupCollections {
+			keyStore[collection] = append(keyStore[collection], key)
+		}
 	}
 
 	// Set the key store
