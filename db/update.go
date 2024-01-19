@@ -2,6 +2,7 @@ package mongik
 
 import (
 	"context"
+	"fmt"
 
 	mongik "github.com/FrosTiK-SD/mongik/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,4 +24,19 @@ func UpdateMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName 
 
 	DBCacheReset(mongikClient.CacheClient, collectionName)
 	return result, err
+}
+
+func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, update bson.M, opts ...*options.FindOneAndUpdateOptions) Result {
+	var result Result
+	var resultInterface map[string]interface{}
+
+	fmt.Println("Querying the DB")
+	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndUpdate(context.Background(), query, update, opts...).Decode(&resultInterface)
+
+	resultBody, _ := json.Marshal(resultInterface)
+	json.Unmarshal(resultBody, &result)
+
+	DBCacheReset(mongikClient.CacheClient, collectionName)
+
+	return result
 }

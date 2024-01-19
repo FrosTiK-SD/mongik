@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/FrosTiK-SD/mongik/constants"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func getKey[Option any](collectionName string, operation string, query interface{}, option []*Option) string {
@@ -12,7 +12,7 @@ func getKey[Option any](collectionName string, operation string, query interface
 	for _, opt := range option {
 		optionKey += iterateStructFields(*opt)
 	}
-	return fmt.Sprintf("%s | %s | %v | %v", collectionName, constants.DB_FINDONE, query, optionKey)
+	return fmt.Sprintf("%s | %s | %v | %v", collectionName, operation, query, optionKey)
 }
 
 func iterateStructFields(input interface{}) string {
@@ -28,4 +28,21 @@ func iterateStructFields(input interface{}) string {
 		}
 	}
 	return structKey + " }"
+}
+
+func getLookupCollections(pipeline []bson.M) []string {
+	var res []string
+	for _, val := range pipeline {
+		stage, exists := val["$lookup"]
+		if exists == true {
+			stageInterface := stage.(bson.M)
+			if stageInterface != nil {
+				collectionName, exists := stageInterface["from"]
+				if exists == true {
+					res = append(res, collectionName.(string))
+				}
+			}
+		}
+	}
+	return res
 }
