@@ -13,7 +13,7 @@ func DeleteOne(mongikClient *mongik.Mongik, db string, collectionName string, qu
 	// Query to DB
 	docId, err := mongikClient.MongoClient.Database(db).Collection(collectionName).DeleteOne(context.Background(), query, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return docId, err
 }
 
@@ -21,6 +21,6 @@ func DeleteMany(mongikClient *mongik.Mongik, db string, collectionName string, q
 	// Query to DB
 	docIds, err := mongikClient.MongoClient.Database(db).Collection(collectionName).DeleteMany(context.Background(), query, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return docIds, err
 }
