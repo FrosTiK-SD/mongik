@@ -1,47 +1,16 @@
-package main
+package mongik
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"time"
 
 	"github.com/FrosTiK-SD/mongik/constants"
-	db "github.com/FrosTiK-SD/mongik/db"
 	mongik "github.com/FrosTiK-SD/mongik/models"
 	"github.com/allegro/bigcache/v3"
 	"github.com/redis/go-redis/v9"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-type Test struct {
-	Id primitive.ObjectID `bson:"_id" json:"_id"`
-	Name string `bson:"name" json:"name"`
-	Val int64 `bson:"val" json:"val"`
-}
-
-func main() {
-	mongikClient := NewClient("mongodb://localhost:27017/", &mongik.Config{
-		Client: "REDIS",
-		TTL: time.Hour,
-	})
-	var res Test
-	db.FindOne[Test](mongikClient, "test", "test", bson.M{
-		"_id": "65a2cc7c86f33746a787bcb9",
-	}, &res, false)
-	fmt.Println("---res", res)
-	db.FindOne[Test](mongikClient, "test", "test", bson.M{
-		"_id": "65a2cc7c86f33746a787bcb9",
-	}, &res, false)
-	fmt.Println("---res", res)
-	db.FindOne[Test](mongikClient, "test", "test", bson.M{
-		"_id": "65a2cc7c86f33746a787bcb9",
-	}, &res, false)
-	fmt.Println("---res", res)
-}
 
 func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 	ctx := context.Background()
@@ -74,7 +43,11 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 				return &mongik.Mongik{
 					MongoClient: mongoClient,
 					CacheClient: cacheClient,
-					Config:      config,
+					Config:      &mongik.Config{
+						Client: "BIGCACHE",
+						TTL: config.TTL,
+						FallbackToDefault: config.FallbackToDefault,
+					},
 				}
 			} else {
 				log.Fatalf("Unable to Connect to Redis: %v\n", err)

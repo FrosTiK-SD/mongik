@@ -12,7 +12,6 @@ import (
 
 func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, result *Result, noCache bool, opts ...*options.FindOneOptions) {
 	key := getKey(collectionName, constants.DB_FINDONE, query, opts)
-	var resultBytes []byte
 	var resultInterface map[string]interface{}
 
 	// First Check if it is present in the cache
@@ -31,15 +30,13 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 	json.Unmarshal(resultBody, &result)
 
 	// Set to cache
-	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient, key, resultBytes); err == nil {
+	if err := DBCacheSet(mongikClient, key, result); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 }
 
 func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName string, query bson.M, noCache bool, opts ...*options.FindOptions) ([]Result, error) {
 	key := getKey(collectionName, constants.DB_FIND, query, opts)
-	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}
 
@@ -64,8 +61,7 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 	json.Unmarshal(resultBody, &result)
 
 	// Set to cache
-	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient, key, resultBytes); err == nil {
+	if err := DBCacheSet(mongikClient, key, result); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 

@@ -14,7 +14,7 @@ func getDBClusterFromKey(key string) string {
 	return strings.Split(key, " | ")[0]
 }
 
-func DBCacheSet(mongikClient *mongik.Mongik, key string, value []byte, lookupCollections ...string) error {
+func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, lookupCollections ...string) error {
 	ctx := context.Background()
 	var keyStore map[string][]string
 
@@ -30,7 +30,6 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value []byte, lookupCol
 		if err != nil {
 			return err
 		}
-		fmt.Println("redis-----", keyStore)
 		if err := json.Unmarshal(keyStoreBytes, &keyStore); err != nil {
 			keyStore = make(map[string][]string)
 		}
@@ -46,17 +45,26 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value []byte, lookupCol
 		}
 	}
 
-	fmt.Println("--------- Cache set")
+	fmt.Println("--------- Keystore set")
 	fmt.Println(keyStore)
-	fmt.Println("--------- Cache set end")
+	fmt.Println("--------- Keystore set end")
 
 	// Set the key store
+	keyStoreBytes, _ := json.Marshal(keyStore)
+	valueBytes, _ := json.Marshal(value)
+
 	if mongikClient.Config.Client == constants.BIGCACHE {
-		keyStoreBytes, _ := json.Marshal(keyStore)
-		_ = mongikClient.CacheClient.Set(constants.KEY_STORE, keyStoreBytes)
-		return mongikClient.CacheClient.Set(key, value)
+		err := mongikClient.CacheClient.Set(constants.KEY_STORE, keyStoreBytes)
+		if err != nil {
+			return err
+		}
+		return mongikClient.CacheClient.Set(key, valueBytes)
 	} else if mongikClient.Config.Client == constants.REDIS {
-		mongikClient.RedisClient.HSet(ctx, constants.KEY_STORE, keyStore)
+		err := mongikClient.RedisClient.Set(ctx, constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
+		if err != nil {
+			return err
+		}
+		return mongikClient.RedisClient.Set(ctx, key, valueBytes, mongikClient.Config.TTL).Err()
 	}
 
 	return nil
@@ -102,6 +110,10 @@ func DBCacheFetch(mongikClient *mongik.Mongik, key string) []byte {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		return resultBytes
 	} else if mongikClient.Config.Client == constants.REDIS {
+		exists, _ := mongikClient.RedisClient.Exists(ctx, key).Result()
+		if exists == 0 {
+			return nil
+		}
 		result, _ := mongikClient.RedisClient.HGetAll(ctx, key).Result()
 		if resultBytes, err := json.Marshal(result); err == nil {
 			return resultBytes
