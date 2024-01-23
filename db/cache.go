@@ -16,7 +16,6 @@ func getDBClusterFromKey(key string) string {
 }
 
 func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, lookupCollections ...string) error {
-	ctx := context.Background()
 	var keyStore map[string][]string
 
 	// Get the list of keys
@@ -29,7 +28,7 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 
 	} else if mongikClient.Config.Client == constants.REDIS {
 
-		keyStoreResult, _ := mongikClient.RedisClient.Get(ctx, constants.KEY_STORE).Result()
+		keyStoreResult, _ := mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Result()
 		if err := json.UnmarshalFromString(keyStoreResult, &keyStore); err != nil {
 			keyStore = make(map[string][]string)
 		}
@@ -57,11 +56,11 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 		}
 		return mongikClient.CacheClient.Set(key, valueBytes)
 	} else if mongikClient.Config.Client == constants.REDIS {
-		err := mongikClient.RedisClient.Set(ctx, constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
+		err := mongikClient.RedisClient.Set(context.Background(), constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
 		if err != nil {
 			return err
 		}
-		return mongikClient.RedisClient.Set(ctx, key, valueBytes, mongikClient.Config.TTL).Err()
+		return mongikClient.RedisClient.Set(context.Background(), key, valueBytes, mongikClient.Config.TTL).Err()
 	}
 
 	fmt.Println("Keystore set: ", keyStore)
@@ -70,7 +69,6 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 }
 
 func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
-	ctx := context.Background()
 	var keyStore map[string][]string
 
 	// Get the list of keys
@@ -83,7 +81,7 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 
 	} else if mongikClient.Config.Client == constants.REDIS {
 
-		keyStoreResult, _ := mongikClient.RedisClient.Get(ctx, constants.KEY_STORE).Result()
+		keyStoreResult, _ := mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Result()
 		if err := json.UnmarshalFromString(keyStoreResult, &keyStore); err != nil {
 			keyStore = make(map[string][]string)
 		}
@@ -92,7 +90,7 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 
 	// Delete all the keys in the cluster
 	for _, key := range keyStore[clusterName] {
-		mongikClient.RedisClient.Del(ctx, key)
+		mongikClient.RedisClient.Del(context.Background(), key)
 	}
 	keyStore[clusterName] = []string{}
 
@@ -108,7 +106,7 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 
 	} else if mongikClient.Config.Client == constants.REDIS {
 
-		err := mongikClient.RedisClient.Set(ctx, constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
+		err := mongikClient.RedisClient.Set(context.Background(), constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
 		if err != nil {
 			fmt.Println("Error in setting Keystore: ", err)
 		}
@@ -117,8 +115,8 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 }
 
 func DBCacheFetch(mongikClient *mongik.Mongik, key string) []byte {
-	ctx := context.Background()
-
+	
+	// Fetch from Cache
 	if mongikClient.Config.Client == constants.BIGCACHE {
 
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
@@ -126,9 +124,9 @@ func DBCacheFetch(mongikClient *mongik.Mongik, key string) []byte {
 
 	} else if mongikClient.Config.Client == constants.REDIS {
 
-		result, _ := mongikClient.RedisClient.Get(ctx, key).Result()
+		result, _ := mongikClient.RedisClient.Get(context.Background(), key).Result()
 
-		// This is done to as result is string type and marshalling directly to JSON throws error
+		// This is done as result is string type and marshalling directly to JSON throws error
 		var resultInterface map[string]interface{}
 		if err := json.UnmarshalFromString(result, &resultInterface); err != nil {
 			return nil

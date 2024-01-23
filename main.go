@@ -13,11 +13,10 @@ import (
 )
 
 func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
-	ctx := context.Background()
 
 	// Connect to MongoDB
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURL).SetServerAPIOptions(serverAPI))
+	mongoClient, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURL).SetServerAPIOptions(serverAPI))
 	if err != nil {
 		log.Fatalf("Unable to Connect to MongoDB: %v\n", err)
 	} else {
@@ -36,7 +35,7 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 			Password: config.RedisConfig.DBPassword,
 			DB:       config.RedisConfig.DBIndex,
 		})
-		if err := redisClient.Ping(ctx).Err(); err != nil {
+		if err := redisClient.Ping(context.Background()).Err(); err != nil {
 			if config.FallbackToDefault == true {
 				// Initialize BigCache
 				cacheClient, _ := bigcache.New(context.Background(), bigcache.DefaultConfig(config.TTL))

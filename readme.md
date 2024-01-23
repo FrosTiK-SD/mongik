@@ -24,15 +24,51 @@ go get github.com/FrosTiK-SD/mongik
 
 Initialize it
 
+BigCache Version
+
 ```.go
 package main
 
 import (
+    "time"
+
     mongik "github.com/FrosTiK-SD/mongik"
+    models "github.com/FrosTiK-SD/mongik/models"
 )
 
 func main() {
-    mongikClient := mongik.NewClient(os.Getenv(constants.DB), time.Hour)
+    mongikConfig := &models.config{
+        Client: "BIGCACHE",
+        TTL: time.Hour,
+    }
+    mongikClient := mongik.NewClient(os.Getenv(constants.DB), mongikConfig)
+}
+```
+
+Redis Version
+
+```.go
+package main
+
+import (
+    "time"
+
+    mongik "github.com/FrosTiK-SD/mongik"
+    models "github.com/FrosTiK-SD/mongik/models"
+)
+
+func main() {
+    mongikConfig := &models.config{
+        Client: "REDIS",
+        RedisConfig: &models.RedisConfig{
+            URI: "localhost:6379",      // This is the default config if RedisConfig left empty
+            DBPassword: "",
+            DBIndex: 0,
+        }
+        TTL: time.Hour,
+        FallbackToDefault: true, // If true, will default to BigCache version if Redis throws error
+    }
+    mongikClient := mongik.NewClient(os.Getenv(constants.DB), mongikConfig)
 }
 ```
 
@@ -41,14 +77,28 @@ Its that simple. All the error in connecting to Mongo are managed by the `Mongik
 | Parameter No | Name | Type | Usage |
 | ------------ | ---- | ---- | ----- |
 | 1 | MONGO_CONNECTION_STRING | `string` | The `MongoDB` connection string `mongodb+srv://.....` |
-| 2 | CACHE_DURATION | `time.Duration` | The duration for which the DB call will be cached |
+| 2 | MONGIK_CONFIG | `Config` | Config struct from mongik/models.go ```.go
+type Config struct {
+	Client string
+	RedisConfig *RedisConfig
+	TTL time.Duration
+	FallbackToDefault bool
+}
+
+type RedisConfig struct {
+	URI string              // Redis server addr
+	DBPassword string
+	DBIndex int
+} |
 
 It returns a `MongikClient`.
 
 ```.go
 type Mongik struct {
     MongoClient *mongo.Client
-    CacheClient *bigcache.BigCache
+	CacheClient *bigcache.BigCache      // Populated in BigCache version, else empty
+	RedisClient *redis.Client           // Populated in Redis version, else empty
+	Config *Config
 }
 ```
 
