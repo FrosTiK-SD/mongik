@@ -24,6 +24,7 @@ func FindOne[Result any](mongikClient *mongik.Mongik, db string, collectionName 
 	}
 
 	// Query to DB
+	fmt.Println("Querying the DB")
 	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOne(context.Background(), query, opts...).Decode(&resultInterface)
 
 	resultBody, _ := json.Marshal(resultInterface)
