@@ -1,30 +1,34 @@
 # Mongik
 
-A simple MongoDB warpper for Golang MongoDB driver. It no way tries to replace the native MongoDB driver and just acts like a wrapper with in-built caching and optimised query parsing.
+A simple MongoDB wrapper for Golang MongoDB driver. It does not try to replace the native MongoDB driver but simply act as a wrapper with in-built caching and optimised query parsing.
 
-## Why use Mongik ?
+Provides two caching options, either using `BigCache` or using `Redis`.
 
-Suppose you want to reduce DB calls to MongoDB to save costing you are getting lots of `READ` requests and less `WRITE`, Mongik will be the right choice for you. This is just a wrapper over MongoDB driver so you can use the native driver anytime according to your preference.
+## Why use Mongik?
 
-## Why not use Mongik ?
+If you want to reduce DB calls to MongoDB to save DB costs and you are getting lots of `READ` requests and less `WRITE` requests then Mongik will be the right choice for you. This is a wrapper over the MongoDB driver so you can use the native driver anytime.
 
-If you have a use-case where there are lots of `WRITE` requests and less `READ` requests, Mongik may not be a life-saver for you. You can still use Mongik but you will not have any significant performance gain over the native MongoDB driver as it will use the native MongoDB driver itself for the operations can there is no point in caching in this scenario.
+`Redis` version of Mongik is also available for use, if you have a horizontally scaled server.
 
-If you have a scaled server (Horizontally scaled specifically) then Mongik will not be a good choice for you **if you are using the `BigCache` version of Mongik.** In such a usecase you have to use the `Redis` version of `Mongik` [BETA]
+## Why to not use Mongik?
 
-## How to get started ?
+If you have lots of `WRITE` requests and less `READ` requests, Mongik may not be a life-saver for you. You can still use Mongik but you will not have any significant performance gain over the native MongoDB driver as it will use the native MongoDB driver itself for the `WRITE` operations as there is no point in caching in this scenario.
 
-Its actually very simple
+If you have a scaled server (Horizontally scaled specifically) then use `Redis` version of `Mongik`. [BETA]
 
-Lets first install it
+## How to get started?
+
+It is pretty simple!
+
+### Installation
 
 ```.go
 go get github.com/FrosTiK-SD/mongik
 ```
 
-Initialize it
+### Initialisation
 
-BigCache Version
+`BigCache` version
 
 ```.go
 package main
@@ -45,7 +49,7 @@ func main() {
 }
 ```
 
-Redis Version
+`Redis` version
 
 ```.go
 package main
@@ -61,35 +65,41 @@ func main() {
     mongikConfig := &models.config{
         Client: "REDIS",
         RedisConfig: &models.RedisConfig{
-            URI: "localhost:6379",      // This is the default config if RedisConfig left empty
+            URI: "localhost:6379",          
             DBPassword: "",
             DBIndex: 0,
-        }
+        }                                   // Default config if RedisConfig left empty
         TTL: time.Hour,
-        FallbackToDefault: true, // If true, will default to BigCache version if Redis throws error
+        FallbackToDefault: true,            // If true, will default to BigCache version if Redis throws error
     }
     mongikClient := mongik.NewClient(os.Getenv(constants.DB), mongikConfig)
 }
 ```
 
-Its that simple. All the error in connecting to Mongo are managed by the `MongikClient` itself
+No error handling required! Any error while connecting to Mongo will be managed by the `MongikClient`
 
+### Parameters of NewClient function
 | Parameter No | Name | Type | Usage |
 | ------------ | ---- | ---- | ----- |
 | 1 | MONGO_CONNECTION_STRING | `string` | The `MongoDB` connection string `mongodb+srv://.....` |
-| 2 | MONGIK_CONFIG | `Config` | Config struct from mongik/models.go ```.go
+| 2 | MONGIK_CONFIG | `Config` from `models/mongik.go` | Specify client version and other configurations |
+
+Below is the `Config` struct.
+
+```.go
 type Config struct {
-	Client string
+	Client string                       // Specify "BIGCACHE" or "REDIS"
 	RedisConfig *RedisConfig
 	TTL time.Duration
 	FallbackToDefault bool
 }
 
 type RedisConfig struct {
-	URI string              // Redis server addr
+	URI string                          // Redis server addr
 	DBPassword string
 	DBIndex int
-} |
+}
+``` 
 
 It returns a `MongikClient`.
 
@@ -102,6 +112,8 @@ type Mongik struct {
 }
 ```
 
-You can use the individual clients also for more granular control but we will not talk about here as documentation of that can be found in their respective docs.
+You can also use the individual clients for more granular control.
 
-Now you can check out the `db` folder to check out the method exported and just replace the DB calls in your code with the exported functions of `Mongik` to enjoy caching and enhanced parsing.
+### All done!
+
+Now you can check out the `db` folder to see the methods exported. Replace the DB calls in your code with the exported functions of `Mongik` to enjoy caching and enhanced parsing!
