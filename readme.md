@@ -101,7 +101,7 @@ type RedisConfig struct {
 }
 ``` 
 
-It returns a `MongikClient`.
+The function returns a `MongikClient`.
 
 ```.go
 type Mongik struct {
