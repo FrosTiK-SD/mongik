@@ -12,7 +12,7 @@ func InsertOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName s
 	// Query to DB
 	docId, err := mongikClient.MongoClient.Database(db).Collection(collectionName).InsertOne(context.Background(), doc, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return docId, err
 }
 
@@ -25,6 +25,6 @@ func InsertMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName 
 	// Query to DB
 	docIds, err := mongikClient.MongoClient.Database(db).Collection(collectionName).InsertMany(context.Background(), docsInterface, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return docIds, err
 }

@@ -14,7 +14,7 @@ func UpdateOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName s
 	// Query to DB
 	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateOne(context.Background(), filter, update, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return result, err
 }
 
@@ -22,7 +22,7 @@ func UpdateMany[Doc any](mongikClient *mongik.Mongik, db string, collectionName 
 	// Query to DB
 	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).UpdateMany(context.Background(), filter, update, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return result, err
 }
 
@@ -36,7 +36,7 @@ func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collec
 	resultBody, _ := json.Marshal(resultInterface)
 	json.Unmarshal(resultBody, &result)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 
 	return result
 }

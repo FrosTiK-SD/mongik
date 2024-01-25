@@ -13,6 +13,6 @@ func ReplaceOne[Doc any](mongikClient *mongik.Mongik, db string, collectionName 
 	// Query to DB
 	result, err := mongikClient.MongoClient.Database(db).Collection(collectionName).ReplaceOne(context.Background(), filter, doc, opts...)
 
-	DBCacheReset(mongikClient.CacheClient, collectionName)
+	DBCacheReset(mongikClient, collectionName)
 	return result, err
 }

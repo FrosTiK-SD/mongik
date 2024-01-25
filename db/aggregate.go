@@ -12,13 +12,12 @@ import (
 
 func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline []bson.M, noCache bool, opts ...*options.AggregateOptions) ([]Result, error) {
 	key := getKey(collectionName, constants.DB_AGGREGATE, pipeline, opts)
-	var resultBytes []byte
 	var result []Result
 	var resultInterface []map[string]interface{}
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
+		resultBytes := DBCacheFetch(mongikClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
@@ -40,8 +39,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	lookupCollections := getLookupCollections(pipeline)
 
 	// Set to cache
-	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollections...); err == nil {
+	if err := DBCacheSet(mongikClient, key, result, lookupCollections...); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 
@@ -50,13 +48,12 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 
 func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collectionName string, pipeline []bson.M, noCache bool, opts ...*options.AggregateOptions) (Result, error) {
 	key := getKey(collectionName, constants.DB_AGGREGATEONE, pipeline, opts)
-	var resultBytes []byte
 	var result Result
 	var resultInterface []map[string]interface{}
 
 	// First Check if it is present in the cache
 	if !noCache {
-		resultBytes := DBCacheFetch(mongikClient.CacheClient, key)
+		resultBytes := DBCacheFetch(mongikClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
 			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
@@ -82,8 +79,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 	lookupCollections := getLookupCollections(pipeline)
 
 	// Set to cache
-	resultBytes, _ = json.Marshal(result)
-	if err := DBCacheSet(mongikClient.CacheClient, key, resultBytes, lookupCollections...); err == nil {
+	if err := DBCacheSet(mongikClient, key, result, lookupCollections...); err == nil {
 		fmt.Println("Successfully set DB call in cache with key ", key)
 	}
 
