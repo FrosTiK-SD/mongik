@@ -115,26 +115,13 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 }
 
 func DBCacheFetch(mongikClient *mongik.Mongik, key string) []byte {
-	
 	// Fetch from Cache
 	if mongikClient.Config.Client == constants.BIGCACHE {
-
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
 		return resultBytes
-
 	} else if mongikClient.Config.Client == constants.REDIS {
-
-		result, _ := mongikClient.RedisClient.Get(context.Background(), key).Result()
-
-		// This is done as result is string type and marshalling directly to JSON throws error
-		var resultInterface map[string]interface{}
-		if err := json.UnmarshalFromString(result, &resultInterface); err != nil {
-			return nil
-		}
-		if resultBytes, err := json.Marshal(resultInterface); err == nil {
-			return resultBytes
-		}
-
+		resultBytes, _ := mongikClient.RedisClient.Get(context.Background(), key).Bytes()
+		return resultBytes
 	}
 	return nil
 }
