@@ -59,14 +59,16 @@ import (
 
     mongik "github.com/FrosTiK-SD/mongik"
     models "github.com/FrosTiK-SD/mongik/models"
+    constants "github.com/FrosTiK-SD/mongik/constants"
 )
 
 func main() {
     mongikConfig := &models.config{
-        Client: "REDIS",
+        Client: constants.REDIS,
         RedisConfig: &models.RedisConfig{
             URI: "localhost:6379",          
-            DBPassword: "",
+            Password: "",
+            Username: "",
             DBIndex: 0,
         }                                   // Default config if RedisConfig left empty
         TTL: time.Hour,
