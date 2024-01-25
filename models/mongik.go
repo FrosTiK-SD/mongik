@@ -12,18 +12,19 @@ type Mongik struct {
 	MongoClient *mongo.Client
 	CacheClient *bigcache.BigCache
 	RedisClient *redis.Client
-	Config *Config
+	Config      *Config
 }
 
 type Config struct {
-	Client string
-	RedisConfig *RedisConfig
-	TTL time.Duration
+	Client            string
+	RedisConfig       *RedisConfig
+	TTL               time.Duration
 	FallbackToDefault bool
 }
 
 type RedisConfig struct {
-	URI string
-	DBPassword string
-	DBIndex int
+	URI      string
+	Username string
+	Password string
+	DBIndex  int
 }

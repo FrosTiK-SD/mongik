@@ -32,7 +32,8 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 		// Initialize Redis
 		redisClient := redis.NewClient(&redis.Options{
 			Addr:     config.RedisConfig.URI,
-			Password: config.RedisConfig.DBPassword,
+			Username: config.RedisConfig.Username,
+			Password: config.RedisConfig.Password,
 			DB:       config.RedisConfig.DBIndex,
 		})
 		if err := redisClient.Ping(context.Background()).Err(); err != nil {
@@ -42,9 +43,9 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 				return &mongik.Mongik{
 					MongoClient: mongoClient,
 					CacheClient: cacheClient,
-					Config:      &mongik.Config{
-						Client: "BIGCACHE",
-						TTL: config.TTL,
+					Config: &mongik.Config{
+						Client:            constants.BIGCACHE,
+						TTL:               config.TTL,
 						FallbackToDefault: config.FallbackToDefault,
 					},
 				}

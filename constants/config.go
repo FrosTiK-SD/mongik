@@ -8,7 +8,8 @@ const (
 )
 
 var DEFAULT_REDIS_CONFIG = &mongik.RedisConfig{
-	URI: "localhost:6379",
-	DBPassword: "",
-	DBIndex: 0,
+	URI:      "localhost:6379",
+	Password: "",
+	Username: "default",
+	DBIndex:  0,
 }
