@@ -23,6 +23,9 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 		log.Println("Connected to MongoDB")
 	}
 
+	// Initialize BigCache anyway
+	cacheClient, _ := bigcache.New(context.Background(), bigcache.DefaultConfig(config.TTL))
+
 	// Check for caching mode
 	if config.Client == constants.REDIS {
 		// Check for default redisConfig
@@ -38,8 +41,6 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 		})
 		if err := redisClient.Ping(context.Background()).Err(); err != nil {
 			if config.FallbackToDefault == true {
-				// Initialize BigCache
-				cacheClient, _ := bigcache.New(context.Background(), bigcache.DefaultConfig(config.TTL))
 				return &mongik.Mongik{
 					MongoClient: mongoClient,
 					CacheClient: cacheClient,
@@ -56,14 +57,6 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 		return &mongik.Mongik{
 			MongoClient: mongoClient,
 			RedisClient: redisClient,
-			Config:      config,
-		}
-
-	} else if config.Client == constants.BIGCACHE {
-		// Initialize BigCache
-		cacheClient, _ := bigcache.New(context.Background(), bigcache.DefaultConfig(config.TTL))
-		return &mongik.Mongik{
-			MongoClient: mongoClient,
 			CacheClient: cacheClient,
 			Config:      config,
 		}
@@ -71,6 +64,7 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 
 	return &mongik.Mongik{
 		MongoClient: mongoClient,
+		CacheClient: cacheClient,
 		Config:      config,
 	}
 }
