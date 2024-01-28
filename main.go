@@ -64,6 +64,7 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 
 	return &mongik.Mongik{
 		MongoClient: mongoClient,
+		CacheClient: cacheClient,
 		Config:      config,
 	}
 }
