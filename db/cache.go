@@ -17,22 +17,17 @@ func getDBClusterFromKey(key string) string {
 
 func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, lookupCollections ...string) error {
 	var keyStore map[string][]string
+	var keyStoreBytes []byte
 
 	// Get the list of keys
 	if mongikClient.Config.Client == constants.BIGCACHE {
-
-		keyStoreBytes, _ := mongikClient.CacheClient.Get(constants.KEY_STORE)
-		if err := json.Unmarshal(keyStoreBytes, &keyStore); err != nil {
-			keyStore = make(map[string][]string)
-		}
-
+		keyStoreBytes, _ = mongikClient.CacheClient.Get(constants.KEY_STORE)
 	} else if mongikClient.Config.Client == constants.REDIS {
+		keyStoreBytes, _ = mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Bytes()
+	}
 
-		keyStoreResult, _ := mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Result()
-		if err := json.UnmarshalFromString(keyStoreResult, &keyStore); err != nil {
-			keyStore = make(map[string][]string)
-		}
-
+	if err := json.Unmarshal(keyStoreBytes, &keyStore); err != nil {
+		keyStore = make(map[string][]string)
 	}
 
 	clusterName := getDBClusterFromKey(key)
@@ -46,7 +41,7 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 	}
 
 	// Set the key store
-	keyStoreBytes, _ := json.Marshal(keyStore)
+	keyStoreBytes, _ = json.Marshal(keyStore)
 	valueBytes, _ := json.Marshal(value)
 
 	if mongikClient.Config.Client == constants.BIGCACHE {
@@ -70,32 +65,34 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 
 func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 	var keyStore map[string][]string
+	var keyStoreBytes []byte
 
 	// Get the list of keys
 	if mongikClient.Config.Client == constants.BIGCACHE {
-
-		keyStoreBytes, _ := mongikClient.CacheClient.Get(constants.KEY_STORE)
-		if err := json.Unmarshal(keyStoreBytes, &keyStore); err != nil {
-			keyStore = make(map[string][]string)
-		}
-
+		keyStoreBytes, _ = mongikClient.CacheClient.Get(constants.KEY_STORE)
 	} else if mongikClient.Config.Client == constants.REDIS {
+		keyStoreBytes, _ = mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Bytes()
+	}
 
-		keyStoreResult, _ := mongikClient.RedisClient.Get(context.Background(), constants.KEY_STORE).Result()
-		if err := json.UnmarshalFromString(keyStoreResult, &keyStore); err != nil {
-			keyStore = make(map[string][]string)
-		}
-
+	if err := json.Unmarshal(keyStoreBytes, &keyStore); err != nil {
+		keyStore = make(map[string][]string)
 	}
 
 	// Delete all the keys in the cluster
-	for _, key := range keyStore[clusterName] {
-		mongikClient.RedisClient.Del(context.Background(), key)
+	if mongikClient.Config.Client == constants.BIGCACHE {
+		for _, key := range keyStore[clusterName] {
+			mongikClient.CacheClient.Delete(key)
+		}
+	} else if mongikClient.Config.Client == constants.REDIS {
+		for _, key := range keyStore[clusterName] {
+			mongikClient.RedisClient.Del(context.Background(), key)
+		}
 	}
+	
 	keyStore[clusterName] = []string{}
 
 	// Set the key store
-	keyStoreBytes, _ := json.Marshal(keyStore)
+	keyStoreBytes, _ = json.Marshal(keyStore)
 
 	if mongikClient.Config.Client == constants.BIGCACHE {
 

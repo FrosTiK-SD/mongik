@@ -90,16 +90,17 @@ Below is the `Config` struct.
 
 ```.go
 type Config struct {
-	Client string                       // Specify "BIGCACHE" or "REDIS"
-	RedisConfig *RedisConfig
-	TTL time.Duration
-	FallbackToDefault bool
+	Client              string          // Specify "BIGCACHE" or "REDIS"
+	RedisConfig         *RedisConfig
+	TTL                 time.Duration
+	FallbackToDefault   bool
 }
 
 type RedisConfig struct {
-	URI string                          // Redis server addr
-	DBPassword string
-	DBIndex int
+	URI      string                     // Redis server addr
+	Username string
+	Password string
+	DBIndex  int
 }
 ``` 
 
@@ -110,7 +111,7 @@ type Mongik struct {
     MongoClient *mongo.Client
 	CacheClient *bigcache.BigCache      // Populated in BigCache version, else empty
 	RedisClient *redis.Client           // Populated in Redis version, else empty
-	Config *Config
+	Config      *Config
 }
 ```
 
