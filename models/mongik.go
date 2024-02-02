@@ -20,6 +20,7 @@ type Config struct {
 	RedisConfig       *RedisConfig
 	TTL               time.Duration
 	FallbackToDefault bool
+	Debug             bool
 }
 
 type RedisConfig struct {

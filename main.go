@@ -45,6 +45,7 @@ func NewClient(mongoURL string, config *mongik.Config) *mongik.Mongik {
 					MongoClient: mongoClient,
 					CacheClient: cacheClient,
 					Config: &mongik.Config{
+						Debug:             config.Debug,
 						Client:            constants.BIGCACHE,
 						TTL:               config.TTL,
 						FallbackToDefault: config.FallbackToDefault,

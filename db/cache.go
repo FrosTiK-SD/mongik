@@ -53,12 +53,13 @@ func DBCacheSet(mongikClient *mongik.Mongik, key string, value interface{}, look
 	} else if mongikClient.Config.Client == constants.REDIS {
 		err := mongikClient.RedisClient.Set(context.Background(), constants.KEY_STORE, keyStoreBytes, mongikClient.Config.TTL).Err()
 		if err != nil {
+
 			return err
 		}
 		return mongikClient.RedisClient.Set(context.Background(), key, valueBytes, mongikClient.Config.TTL).Err()
 	}
 
-	fmt.Println("Keystore set: ", keyStore)
+	CacheLog(mongikClient, fmt.Sprintf("Keystore set: %s", keyStore))
 
 	return nil
 }
@@ -88,7 +89,7 @@ func DBCacheReset(mongikClient *mongik.Mongik, clusterName string) {
 			mongikClient.RedisClient.Del(context.Background(), key)
 		}
 	}
-	
+
 	keyStore[clusterName] = []string{}
 
 	// Set the key store
@@ -115,9 +116,11 @@ func DBCacheFetch(mongikClient *mongik.Mongik, key string) []byte {
 	// Fetch from Cache
 	if mongikClient.Config.Client == constants.BIGCACHE {
 		resultBytes, _ := mongikClient.CacheClient.Get(key)
+		CacheLog(mongikClient, fmt.Sprintf("Retrieved data from the cache of the key: %s", key))
 		return resultBytes
 	} else if mongikClient.Config.Client == constants.REDIS {
 		resultBytes, _ := mongikClient.RedisClient.Get(context.Background(), key).Bytes()
+		CacheLog(mongikClient, fmt.Sprintf("Retrieved data from the cache of the key: %s", key))
 		return resultBytes
 	}
 	return nil
