@@ -2,7 +2,6 @@ package mongik
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
@@ -19,13 +18,11 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	if !noCache {
 		resultBytes := DBCacheFetch(mongikClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
 		}
 	}
 
 	// Query to DB
-	fmt.Println("Querying the DB")
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
 	if err != nil {
 		return nil, err
@@ -39,9 +36,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 	lookupCollections := getLookupCollections(pipeline)
 
 	// Set to cache
-	if err := DBCacheSet(mongikClient, key, result, lookupCollections...); err == nil {
-		fmt.Println("Successfully set DB call in cache with key ", key)
-	}
+	DBCacheSet(mongikClient, key, result, lookupCollections...)
 
 	return result, nil
 }
@@ -55,13 +50,11 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 	if !noCache {
 		resultBytes := DBCacheFetch(mongikClient, key)
 		if err := json.Unmarshal(resultBytes, &result); err == nil {
-			fmt.Println("Retrieving DB call from the cache with cache key ", key)
 			return result, nil
 		}
 	}
 
 	// Query to DB
-	fmt.Println("Querying the DB")
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
 	if err != nil {
 		return result, err
@@ -79,9 +72,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 	lookupCollections := getLookupCollections(pipeline)
 
 	// Set to cache
-	if err := DBCacheSet(mongikClient, key, result, lookupCollections...); err == nil {
-		fmt.Println("Successfully set DB call in cache with key ", key)
-	}
+	DBCacheSet(mongikClient, key, result, lookupCollections...)
 
 	return result, nil
 }

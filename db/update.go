@@ -2,7 +2,6 @@ package mongik
 
 import (
 	"context"
-	"fmt"
 
 	mongik "github.com/FrosTiK-SD/mongik/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,7 +29,6 @@ func FindOneAndUpdate[Result any](mongikClient *mongik.Mongik, db string, collec
 	var result Result
 	var resultInterface map[string]interface{}
 
-	fmt.Println("Querying the DB")
 	mongikClient.MongoClient.Database(db).Collection(collectionName).FindOneAndUpdate(context.Background(), query, update, opts...).Decode(&resultInterface)
 
 	resultBody, _ := json.Marshal(resultInterface)
