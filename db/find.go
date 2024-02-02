@@ -2,6 +2,7 @@ package mongik
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
@@ -43,6 +44,8 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 			return result, nil
 		}
 	}
+
+	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Find(context.Background(), query, opts...)

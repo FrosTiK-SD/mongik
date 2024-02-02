@@ -2,6 +2,7 @@ package mongik
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/FrosTiK-SD/mongik/constants"
 	mongik "github.com/FrosTiK-SD/mongik/models"
@@ -21,6 +22,8 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 			return result, nil
 		}
 	}
+
+	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
@@ -53,6 +56,8 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 			return result, nil
 		}
 	}
+
+	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
