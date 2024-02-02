@@ -2,13 +2,12 @@ package mongik
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/FrosTiK-SD/mongik/constants"
+	mongik "github.com/FrosTiK-SD/mongik/models"
 )
 
-func CacheLog(log string) {
-	if os.Getenv(constants.MONGIK_DEBUG) == "1" {
+func CacheLog(mongikClient *mongik.Mongik, log string) {
+	if mongikClient.Config.Debug == true {
 		fmt.Println(log)
 	}
 }

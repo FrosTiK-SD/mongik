@@ -23,7 +23,7 @@ func Aggregate[Result any](mongikClient *mongik.Mongik, db string, collectionNam
 		}
 	}
 
-	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
+	CacheLog(mongikClient, fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)
@@ -57,7 +57,7 @@ func AggregateOne[Result any](mongikClient *mongik.Mongik, db string, collection
 		}
 	}
 
-	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
+	CacheLog(mongikClient, fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Aggregate(context.Background(), pipeline, opts...)

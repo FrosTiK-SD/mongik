@@ -45,7 +45,7 @@ func Find[Result any](mongikClient *mongik.Mongik, db string, collectionName str
 		}
 	}
 
-	CacheLog(fmt.Sprintf("Querying the DB\n KEY: %s", key))
+	CacheLog(mongikClient, fmt.Sprintf("Querying the DB\n KEY: %s", key))
 
 	// Query to DB
 	cursor, err := mongikClient.MongoClient.Database(db).Collection(collectionName).Find(context.Background(), query, opts...)
